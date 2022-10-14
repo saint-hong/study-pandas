@@ -148,17 +148,124 @@ summary pandas
    - pd.cut(data, bins=, labels=)
    - pd.qcut(data, 구간갯수, labels=)
 
+# 05_index_transform
+### 데이터프레임 인덱스 설정 및 제거
+- 열을 인덱스로 설정
+   - df.set_index("col1")
+- 인덱스를 열로 설정
+   - df.reset_index() : 인덱스를 열로 변환
+   - df.reset_index(drop=True) : 기존 인덱스 삭제하고 정수 인덱스 설정
+- 다중인덱스
+   - columns=[[], []]
+   - index=[[], []]
+- 다중인덱스 이름지정
+   - columns.names = ["열이름1", "열이름2"]
+   - index.names = ["인덱스 이름1", "인덱스 이름2"]
+- 다중 인덱스 선택하기
+   - loc 인덱서 사용
 
+### 행, 열 인덱스 교환
+- 열 인덱스를 행 인덱스로 교환
+   - df.stack("열라벨")
+- 행 인덱스를 열 인덱스로 교환
+   - df.unstack("행라벨")
+   - df.unstack(0)
 
+### 다중 인덱스의 인덱싱
+- 리스트 안에 튜플 사용
+   - df[("상위열라벨", "하위열라벨")]
+- loc 인덱서 사용
+   - 라벨값 사용
+   - df.loc["행라벨", ("열라벨", "열라벨")]
+   - df.loc[("행라벨" "행라벨"), ("열라벨", "열라벨")]
+- iloc 인덱서 사용
+   - 행의 순서값인 정수 사용
+   - df.iloc[0, ("열라벨", "열라벨")]
+- 슬라이싱
+   - 튜플 안에는 슬라이싱 기호를 쓸 수 없다.
+   - df.loc[(), :]
+   - df.loc[:, ()]
+- 튜플 안에 슬라이싱
+   - df.loc[("행라벨", slice(None), "열라벨"]
+   - df.loc["행라벨", ("열라벨", slice(None)]
 
+### 다중 인덱스 순서 교환
+- swaplevel(i, j, axis=)
 
+### 정렬
+- 행 다중 인덱스 정렬
+   - df.sort_index(level=, axis=0) : level에 상위 하위 레벨 입력
+- 열 다중 인덱스 정렬
+   - df.sort_index(level=, axis=1) : level에 상위 하위 레벨 입력
 
+# 06_merge_concatenate
+- 병합 : merge
+- 연결 : concatenate
 
+### 데이터프레임 병합
+- pd.merge(df1, df2, how="병합방식")
+   - pd.merge(df1, df2, how="inner")
+   - pd.merge(df1, df2, how="outer")
+   - pd.merge(df1, df2, how="left")
+   - pd.merge(df1, df2, how="right")
+- 기준 키 값 설정
+   - 병합할 때 사용할 키 값을 설정
+   - pd.merge(df1, df2, on="고객명")
+- 좌우 기준 키 값 설정
+   - pd.merge(df1, df2, left_on="이름", right_on="성명")
+   - pd.merge(df1, df2, left_on=["", ""], right_on=["", ""])
+- 인덱스를 기준으로 병합
+   - pd.merge(df1, df2, left_index=True, right_index=False)
+- join
+   - df1.join(df2, how="outer")
 
+### 데이터프레임 연결
+- pd.concat([df1, df2], axis=0)
+   - 기준 열을 사용하지 않고 단순히 연결한다.
+   - axis=0 : 수직으로 연결 : 행으로 연결
+   - axis=1 : 수평으로 연결 : 열로 연결
 
+# 07_pivottable_group_analysis
 
+### pivot
+- df.pivot("열이름1", "열이름2", "열이름3")
+   - 열이름1 : 행 인덱스
+   - 열이름2 : 열 인덱스
+   - 열이름3 : 데이터로 사용할 열
+- set_index + unstack() : 피봇과 같음
+- 다중 인덱스 피봇
+   - df.pivot(["열이름1", "열이름2"], "열이름3", "열이름4")
 
+### gorupby 그룹분석
+- GroupBy 객체를 생성해서 사용하거나, 직접 사용할 수 있다.
+- df.groupby(df1.key1)
+   - df.groupby([df1.key1, df1.key2])
+- 그룹연산 메서드
+   - size, count
+   - mean, median, min, max
+   - sum, prod, std, var, quantile
+   - first, last
+   - agg, aggregate
+   - describe
+   - apply
+   - transform
 
+### pivot_table
+- pivot과 gorupby의 중간 성격
+pivot_table(data, values-None, index=None, columns=None, aggfunc="mean", fill_value=None, margins=False, margins_name="All")
+   - data : 분석할 데이터 프레임
+   - values : 분석할 데이터프레임에서 분석할 열
+   - index : 행 인덱스로 들어갈 키 열 또는 키 열의 리스트
+   - columns : 열 인덱스로 들어갈 키 열 또는 키 열의 리스트
+   - aggfunc : 분석 메서드, 디폴트 값은 평균.
+   - fill_value : NaN 대체 값
+   - margins : 모든 데이터를 분석한 결과를 오른쪽과 아래에 붙일지 여부
+   - margins_name : 마진 열(또는 행)의 이름
+- df.pivot()과 입력하는 열의 순서가 다름
+- 다중 인덱스 테이블
+   - df.pivot_table("열이름1", index=["열이름2", "열이름3"])
+
+# 08_time_index
 
 
 
