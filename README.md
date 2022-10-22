@@ -267,68 +267,108 @@ pivot_table(data, values-None, index=None, columns=None, aggfunc="mean", fill_va
 
 # 08_time_index
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+### DatetimeIndex
+- pd.to_datatime(str)
+    - 시계열 인덱스를 만들어 준다.
+- pd.date_range()
+    - 시계열 데이터를 만들어 준다.
+    - pd.date_range(start="", periods=int, freq="")
+    - periods는 freq의 규칙을 따른다.
+
+### freq 인수
+- pd.date_range(freq="인수")
+- **s** : 초
+- **T** : 분
+- **H** : 시간
+- **D** : 일 (day)
+- **B** : 주말이 아닌 평일
+- **W** : 주 (일요일)
+- **W-MON** : 주 단위 월요일 (요일 바꿔서 사용 가능)
+    - W-TUE : 주 단위 화요일
+- **M** : 각 달 (month)의 마지막 날
+- **MS** : 각 달의 첫날
+- **BM** : 주말이 아닌 평일 중에서 각 달의 마지막 날
+- **BMS** : 주말이 아닌 평일 중에서 각 달의 첫날
+- **WOM-2THU** : 각 달의 두번째 목요일
+    - 순번 + 요일 : 모든 요일의 순번을 정할 수 있음
+- **Q-JAN** : 각 분기의 첫달의 마지막 날
+- **Q-DEC** : 각 분기의 마지막 달의 마지막 날
+    - Q-JAN : 1,4,7,10 월
+    - Q-FEB : 2,5,8,11 월
+    - Q-MAR : 3,6,9,12 월
+    - Q-DEC : 3,6,9,12 월
+    - Q-APR : 1,4,7,10 월
+    - JAN, FEB, MAR 그룹에 속하는 월이 반복된다.
+
+### shift 연산
+- 시간, 날짜, 이동 연산 명령어
+- 전일대비, 전주대비, 전월대비 등의 계산을 할 때 사용할 수 있다.
+- ts.shift(1) : 데이터가 한 칸씩 뒤로 이동
+- ts.shift(-1) : 데이터가 한 칸씩 앞으로 이동
+- ts.shift(1, freq="M")
+    - 시계열 인덱스가 이동한다. 데이터는 그대로.
+    - 1 : 전체 기간이 뒤로 밀려난다. 시작날짜와 마지막날짜가 커진다.
+    - -1 : 전체 기간이 앞으로 당겨진다. 시작, 마지막 날짜가 작아진다.
+    - freq : 날짜 데이터 규칙, M이면 월의 마지막 날짜로 바뀐다.
+        - W 이면 월의 마지막 일요일 날짜로 바뀐다.
+
+### resample()
+- 시간 간격을 재조정하는 리샘플링 명령어
+    - up-sampling : 시간 구간이 작아지고, 데이터 양이 증가한다.
+        - ts.resample()
+    - down-smapling : 시간 구간이 커지고, 데이터 양이 감소한다.
+        - ts.resample().ffill() : 앞에서 나온 데이터를 뒤에서 그대로 사용
+	- ts.resample().bfill() : 뒤에서 나올 데이터를 앞에서 미리 사용
+
+#### down-sampling
+- groupby()와 같은 효과
+- 데이터가 그룹으로 묶이기 때문에 그룹연산을 해야한다.
+- ts.resample("W").mean() : 마지막 일요일 날짜로 그룹화하고 그룹연산은 평균값으로 채운다.
+- ts.resample("M").first() : 월의 마지막 날짜로 그룹화하고, 그룹의 첫번째 데이터를 사용한다.
+
+#### resample시 한계값 설정
+- left와 right의 범위로 이루어져 있다.
+    - left가 구간의 시작이 된다.
+- ts.resample("10T", closed="right").sum() : 10분 간격으로 샘플링하고, 시간 단위가 앞 구간에 포함된다.    
+
+### ohlc()
+- 구간의 시작, 고값, 저값, 끝 : 시고저종
+    - open, high, low, close
+- ts.resample("5T").ohlc()
+
+### up-sampling()
+- down-sampling 은 기존 데이터를 그룹화하는 것과 같음
+- up-sampling 은 없는 데이터를 새로 만드는 것과 같음
+    - foward filing : 앞에서 나온 데이터를 뒤에서 그대로 사용함
+    - backward fillng : 뒤에서 나올 데이터를 앞에서 미리 사용함
+- ts.resample("30s").ffill() : 30초 단위의 시계열 인덱스가 생성되고, 새로 생긴 인덱스에 앞의 데이터가 사용된다.
+- ts.resample("30s").bfill() : 30초 단위의 시계열 인덱스가 생성되고, 새로 생긴 인덱스에 뒤의 데이터가 사용된다.
+
+### dt 접근자
+- 시리즈에서 사용 가능, int로 반환된다.
+- s.dt.year, s.dt.month, s.dt.weekday 등
+
+### strftime() 메서드
+- dt 접근자의 메서드
+- 문자열로 반환된다.
+- freq 인수를 사용할 수 있다.
+
+```python
+s.dt.strftime("%B %b %A %a %Y %m %d %week")
+
+>>> print
+
+0      October Oct Saturday Sat 2022 10 01 6eek
+1        October Oct Sunday Sun 2022 10 02 0eek
+```
+#### strftime 사용하지 않고 freq 규칙 사용
+- year : dt.year
+- month : dt.month
+- dayofyear : dt.dayofyear
+- dayofmonth : dt.daysinmonth
+- dayofweek : dt.dayofweek
+- weekofyear : dt.weekofyear
+- weekday : dt.weekday
+- ismonthstart : dt.is_month_start
+- ismonthend : dt.is_month_end
 
